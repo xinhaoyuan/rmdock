@@ -1,0 +1,18 @@
+#!/bin/bash
+
+WD=`cd $(dirname $0); pwd`
+LOCK_DIR="$WD/.lock"
+
+while ! mkdir $LOCK_DIR 2>/dev/null; do
+    while [ ! -e $LOCK_DIR/pid -a -d $LOCK_DIR ]; do sleep .5; done
+    PY_PID=`cat $LOCK_DIR/pid 2>/dev/null`
+    [ -n "$PY_PID" ] && kill $PY_PID 2>/dev/null
+done
+
+(
+    python $WD/entry.py &
+    PY_PID=$!
+    echo $PY_PID > $LOCK_DIR/pid
+    trap 'rm -rf "$LOCK_DIR"' 0
+    wait $PY_PID 2>/dev/null
+) &
