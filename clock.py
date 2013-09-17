@@ -54,6 +54,7 @@ class Clock(object):
 class ClockEventHandler(object):
   clock = None;
   left_fill_path = None;
+  right_fill_path = None;
 
   def __init__(self, clock):
     self.clock = clock;
@@ -111,10 +112,10 @@ class ClockEventHandler(object):
     # fill the left bar with cpu usage
     if (self.left_fill_path == None):
       cr.new_path();
-      cr.move_to(width / 2, height);
-      cr.arc(width / 2, height / 2, radius, math.pi / 2, math.pi);
-      cr.line_to(width / 2 - radius, height / 2);
-      cr.line_to(0, height / 2);
+      angle_padding = math.asin(float(padding) / radius);
+      cr.move_to(width / 2 - padding, height);
+      cr.arc(width / 2, height / 2, radius, math.pi / 2 + angle_padding, math.pi - angle_padding);
+      cr.line_to(0, height / 2 + padding);
       cr.line_to(0, height);
       cr.close_path();
       self.left_fill_path = cr.copy_path();
@@ -123,9 +124,35 @@ class ClockEventHandler(object):
       cr.append_path(self.left_fill_path);
 
     cr.save();
+    cr.set_source_rgba(1,1,1,0.1);
+    cr.fill_preserve();
     cr.clip();
-    bar_length = width / 2 * (Monitor.get().cpu_usage);
-    cr.rectangle(width / 2 - bar_length, height / 2, bar_length, height / 2);
+    bar_length = (width / 2 - padding) * (Monitor.get().cpu_usage);
+    cr.rectangle((width / 2 - padding) - bar_length, height / 2, bar_length, height / 2);
+    cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
+    cr.fill();
+    cr.restore();
+
+    # fill the right bar with cpu usage
+    if (self.right_fill_path == None):
+      cr.new_path();
+      angle_padding = math.asin(float(padding) / radius);
+      cr.move_to(width / 2 + padding, height);
+      cr.arc_negative(width / 2, height / 2, radius, math.pi / 2 - angle_padding, angle_padding);
+      cr.line_to(width, height / 2 + padding);
+      cr.line_to(width, height);
+      cr.close_path();
+      self.right_fill_path = cr.copy_path();
+    else:
+      cr.new_path();
+      cr.append_path(self.right_fill_path);
+
+    cr.save();
+    cr.set_source_rgba(1,1,1,0.1);
+    cr.fill_preserve();
+    cr.clip();
+    bar_length = (width/ 2 - padding) * (Monitor.get().pmem_usage);
+    cr.rectangle(width / 2 + padding, height / 2, bar_length, height / 2);
     cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
     cr.fill();
     cr.restore();
