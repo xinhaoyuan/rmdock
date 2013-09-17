@@ -29,7 +29,7 @@ class Clock(object):
     
     self.width = width;
     self.height = height;
-    self.hour_radius = 10;
+    self.hour_radius = 4;
     self.min_radius = 8;
     self.sec_radius = 6;
     self.padding = 5;
@@ -78,7 +78,8 @@ class ClockEventHandler(object):
 
     # hour
     cr.new_path();
-    cr.arc(width / 2, height / 2, radius - hour_r - padding, -math.pi / 2, -math.pi / 2 + math.pi / 6 * hour_12);
+    angle_h = -math.pi / 2 + math.pi / 6 * hour_12;
+    cr.arc(width / 2, height / 2, radius - hour_r - padding, angle_h + math.pi / 30, angle_h - math.pi / 30);
     cr.set_line_width(hour_r * 2);
     cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
     cr.stroke();
