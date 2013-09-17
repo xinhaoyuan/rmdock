@@ -55,6 +55,7 @@ class ClockEventHandler(object):
   clock = None;
   left_fill_path = None;
   right_fill_path = None;
+  gmail_icon_surface = None;
 
   def __init__(self, clock):
     self.clock = clock;
@@ -109,13 +110,37 @@ class ClockEventHandler(object):
     pangocairo_context.update_layout(layout);
     pangocairo_context.show_layout(layout);
 
+    # gmail count
+    if (self.gmail_icon_surface == None):
+      image_surface = cairo.ImageSurface.create_from_png("img/gmail-icon-i.png");
+      data = bytearray(image_surface.get_data());
+      for y in xrange(0, image_surface.get_height()):
+        for x in xrange(0, image_surface.get_width()):
+          pos = y * image_surface.get_stride() + x * 4;
+          data[pos] /= 2
+          data[pos + 1] /= 2;
+          data[pos + 2] /= 2;
+          data[pos + 3] /= 2;
+      self.gmail_icon_surface = cairo.ImageSurface.create_for_data(data, image_surface.get_format(), image_surface.get_width(), image_surface.get_height(), image_surface.get_stride());
+      image_surface.finish();
+                      
+    cr.move_to(0,0);
+    cr.set_source_surface(self.gmail_icon_surface);
+    cr.paint();
+
+    layout.set_alignment("left");
+    layout.set_markup("<span font='Monospace 20'>" + str(Monitor.get().gmail_unread_count) + "</span>");
+    cr.move_to(self.gmail_icon_surface.get_width(), 0);
+    cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
+    pangocairo_context.update_layout(layout);
+    pangocairo_context.show_layout(layout);
+
     # fill the left bar with cpu usage
     if (self.left_fill_path == None):
       cr.new_path();
-      angle_padding = math.asin(float(padding) / radius);
       cr.move_to(width / 2 - padding, height);
-      cr.arc(width / 2, height / 2, radius, math.pi / 2 + angle_padding, math.pi - angle_padding);
-      cr.line_to(0, height / 2 + padding);
+      cr.arc(width / 2, height / 2, radius, math.pi / 2 + math.asin(float(padding) / radius), math.pi - math.asin(0.5));
+      cr.line_to(0, height / 2 + radius / 2);
       cr.line_to(0, height);
       cr.close_path();
       self.left_fill_path = cr.copy_path();
@@ -136,10 +161,9 @@ class ClockEventHandler(object):
     # fill the right bar with cpu usage
     if (self.right_fill_path == None):
       cr.new_path();
-      angle_padding = math.asin(float(padding) / radius);
       cr.move_to(width / 2 + padding, height);
-      cr.arc_negative(width / 2, height / 2, radius, math.pi / 2 - angle_padding, angle_padding);
-      cr.line_to(width, height / 2 + padding);
+      cr.arc_negative(width / 2, height / 2, radius, math.pi / 2 - math.asin(float(padding) / radius), math.asin(0.5));
+      cr.line_to(width, height / 2 + radius / 2);
       cr.line_to(width, height);
       cr.close_path();
       self.right_fill_path = cr.copy_path();
