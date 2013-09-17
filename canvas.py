@@ -52,3 +52,6 @@ class Canvas(Gtk.Window):
         cr.paint()
         cr.set_operator(cairo.OPERATOR_OVER)
         self.dock_event_listener.draw(cr);
+
+    def get_window(self):
+        return super(Gtk.Window, self);

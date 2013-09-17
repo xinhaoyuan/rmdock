@@ -4,11 +4,19 @@ from gi.repository import Gtk, Gdk, Pango;
 import cairo;
 import signal;
 from clock import Clock;
+from monitor import Monitor;
 
 def setup():
-    clock = Clock();
-    clock.show();
-
+    Monitor.get().start();
+    screen = Gdk.Screen.get_default();
+    for i in xrange(0, screen.get_n_monitors()):
+        # setup a clock for each monitor
+        rect = screen.get_monitor_geometry(i);
+        c = Clock();
+        c.get_window().move(rect.x + (rect.width - c.width) / 2,
+                            rect.y + (rect.height - c.height) / 2);
+        c.show();
+        
     Gtk.main();
 
 if __name__ == "__main__":    
