@@ -9,8 +9,10 @@ while ! mkdir $LOCK_DIR 2>/dev/null; do
     [ -n "$PY_PID" ] && kill $PY_PID 2>/dev/null
 done
 
+if [ "$1" = "exit" ]; then rmdir ${LOCK_DIR}; exit 0; fi
+
 (
-    python $WD/entry.py &
+    python $WD/src/entry.py &
     PY_PID=$!
     echo $PY_PID > $LOCK_DIR/pid
     trap 'rm -rf "$LOCK_DIR"' 0

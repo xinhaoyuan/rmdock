@@ -7,8 +7,11 @@ import datetime;
 import pango, pangocairo;
 from canvas import Canvas;
 from monitor import Monitor;
+import os;
 
-class Clock(object):
+path = os.path.dirname(__file__) + "/..";
+
+class Meter(object):
 
   canvas = None;
   handler = None;
@@ -23,7 +26,7 @@ class Clock(object):
   
   def __init__(self, width = 300, height = 300):
     self.canvas = Canvas();
-    handler = ClockEventHandler(self);
+    handler = MeterEventHandler(self);
     self.canvas.setup("below", handler);
     self.canvas.set_size(width, height);
     
@@ -51,14 +54,14 @@ class Clock(object):
   def get_window(self):
     return self.canvas.get_window();
 
-class ClockEventHandler(object):
-  clock = None;
+class MeterEventHandler(object):
+  meter = None;
   left_fill_path = None;
   right_fill_path = None;
   gmail_icon_surface = None;
 
-  def __init__(self, clock):
-    self.clock = clock;
+  def __init__(self, meter):
+    self.meter = meter;
 
   def draw(self, cr):
     now = datetime.datetime.now()
@@ -67,36 +70,36 @@ class ClockEventHandler(object):
     min_60 = time.minute;
     sec_60 = time.second;
 
-    width = self.clock.width;
-    height = self.clock.height;
+    width = self.meter.width;
+    height = self.meter.height;
     if (height > width):
-      radius = width / 2 - self.clock.padding;
+      radius = width / 2 - self.meter.padding;
     else:
-      radius = height / 2 - self.clock.padding;
-    hour_r = self.clock.hour_radius;
-    min_r = self.clock.min_radius;
-    sec_r = self.clock.sec_radius;
-    padding = self.clock.padding;
+      radius = height / 2 - self.meter.padding;
+    hour_r = self.meter.hour_radius;
+    min_r = self.meter.min_radius;
+    sec_r = self.meter.sec_radius;
+    padding = self.meter.padding;
 
     # hour
     cr.new_path();
     angle_h = -math.pi / 2 + math.pi / 6 * hour_12;
     cr.arc(width / 2, height / 2, radius - hour_r - padding, angle_h + math.pi / 30, angle_h - math.pi / 30);
     cr.set_line_width(hour_r * 2);
-    cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
+    cr.set_source_rgba(self.meter.fill_color[0], self.meter.fill_color[1], self.meter.fill_color[2], self.meter.opacity);
     cr.stroke();
     # min
     cr.new_path();
     cr.arc(width / 2, height / 2, radius - hour_r * 2 - padding * 2 - min_r, -math.pi / 2, -math.pi / 2 + math.pi / 1800 * (min_60 * 60 + sec_60));
     cr.set_line_width(min_r * 2);
-    cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
+    cr.set_source_rgba(self.meter.fill_color[0], self.meter.fill_color[1], self.meter.fill_color[2], self.meter.opacity);
     cr.stroke();
     # sec
     cr.new_path();
     angle_s = -math.pi / 2 + math.pi / 30 * sec_60;
     cr.arc(width / 2, height / 2, radius - (hour_r + min_r) * 2 - padding * 3 - sec_r, angle_s - math.pi / 10, angle_s + math.pi / 10);
     cr.set_line_width(sec_r * 2);
-    cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
+    cr.set_source_rgba(self.meter.fill_color[0], self.meter.fill_color[1], self.meter.fill_color[2], self.meter.opacity);
     cr.stroke();
     # text
     pangocairo_context = pangocairo.CairoContext(cr)
@@ -107,13 +110,13 @@ class ClockEventHandler(object):
                       "<span font='Monospace 20'>" + now.strftime("%y%m%d") + "</span>");
     size = layout.get_pixel_size();
     cr.move_to((width - size[0]) / 2, (height - size[1]) / 2);
-    cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
+    cr.set_source_rgba(self.meter.fill_color[0], self.meter.fill_color[1], self.meter.fill_color[2], self.meter.opacity);
     pangocairo_context.update_layout(layout);
     pangocairo_context.show_layout(layout);
 
     # gmail count
     if (self.gmail_icon_surface == None):
-      image_surface = cairo.ImageSurface.create_from_png("img/gmail-icon-i.png");
+      image_surface = cairo.ImageSurface.create_from_png(path + "/img/gmail-icon-i.png");
       data = bytearray(image_surface.get_data());
       for y in xrange(0, image_surface.get_height()):
         for x in xrange(0, image_surface.get_width()):
@@ -132,7 +135,7 @@ class ClockEventHandler(object):
     layout.set_alignment("left");
     layout.set_markup("<span font='Monospace 20'>" + str(Monitor.get().gmail_unread_count) + "</span>");
     cr.move_to(self.gmail_icon_surface.get_width(), 0);
-    cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
+    cr.set_source_rgba(self.meter.fill_color[0], self.meter.fill_color[1], self.meter.fill_color[2], self.meter.opacity);
     pangocairo_context.update_layout(layout);
     pangocairo_context.show_layout(layout);
 
@@ -155,7 +158,7 @@ class ClockEventHandler(object):
     cr.clip();
     bar_length = (width / 2 - padding) * (Monitor.get().cpu_usage);
     cr.rectangle((width / 2 - padding) - bar_length, height / 2, bar_length, height / 2);
-    cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
+    cr.set_source_rgba(self.meter.fill_color[0], self.meter.fill_color[1], self.meter.fill_color[2], self.meter.opacity);
     cr.fill();
     cr.restore();
 
@@ -178,7 +181,7 @@ class ClockEventHandler(object):
     cr.clip();
     bar_length = (width/ 2 - padding) * (Monitor.get().pmem_usage);
     cr.rectangle(width / 2 + padding, height / 2, bar_length, height / 2);
-    cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
+    cr.set_source_rgba(self.meter.fill_color[0], self.meter.fill_color[1], self.meter.fill_color[2], self.meter.opacity);
     cr.fill();
     cr.restore();
     
