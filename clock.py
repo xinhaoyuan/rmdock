@@ -87,13 +87,14 @@ class ClockEventHandler(object):
     cr.stroke();
     # min
     cr.new_path();
-    cr.arc(width / 2, height / 2, radius - hour_r * 2 - padding * 2 - min_r, -math.pi / 2, -math.pi / 2 + math.pi / 30 * min_60);
+    cr.arc(width / 2, height / 2, radius - hour_r * 2 - padding * 2 - min_r, -math.pi / 2, -math.pi / 2 + math.pi / 1800 * (min_60 * 60 + sec_60));
     cr.set_line_width(min_r * 2);
     cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
     cr.stroke();
     # sec
     cr.new_path();
-    cr.arc(width / 2, height / 2, radius - (hour_r + min_r) * 2 - padding * 3 - sec_r, -math.pi / 2, -math.pi / 2 + math.pi / 30 * sec_60);
+    angle_s = -math.pi / 2 + math.pi / 30 * sec_60;
+    cr.arc(width / 2, height / 2, radius - (hour_r + min_r) * 2 - padding * 3 - sec_r, angle_s - math.pi / 10, angle_s + math.pi / 10);
     cr.set_line_width(sec_r * 2);
     cr.set_source_rgba(self.clock.fill_color[0], self.clock.fill_color[1], self.clock.fill_color[2], self.clock.opacity);
     cr.stroke();

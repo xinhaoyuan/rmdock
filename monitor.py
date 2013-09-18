@@ -44,7 +44,7 @@ class Monitor(object):
 
     def start(self):
         GLib.timeout_add(400, self.refresh_func);
-        GLib.timeout_add(2000, self.longterm_refresh_func);
+        GLib.timeout_add(10000, self.longterm_refresh_func);
 
 class GmailMonitor(object):
     username = None;
