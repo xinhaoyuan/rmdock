@@ -6,7 +6,7 @@ from threading import Thread;
 
 import base64;
 import urllib2;
-from xml.dom.minidom import parse
+from xml.dom.minidom import parse;
 
 class Monitor(object):
 
