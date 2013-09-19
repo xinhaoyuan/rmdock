@@ -30,12 +30,14 @@ class CircleMeterWidget:
         self.surface       = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.radius * 2, self.radius * 2);
         self.cr            = cairo.Context(self.surface);
 
-    def refresh(self):
+    def prepare_surface(self, ext_cr):
         self.cr.set_operator(cairo.OPERATOR_CLEAR);
         self.cr.paint();
         self.cr.set_operator(cairo.OPERATOR_OVER);
         if (self.mask != None):
             self.cr.mask_surface(self.mask);
+        else:
+            self.cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.alpha);
         value = self.value_monitor.get();
         if (self.style == CircleMeterWidget.STYLE_TAIL):
             self.cr.arc(self.radius, self.radius, self.radius - self.width / 2.0, self.angle_opt1, math.pi * 2 * value + self.angle_opt2);
@@ -45,13 +47,13 @@ class CircleMeterWidget:
             self.cr.set_line_width(self.width);
         else:
             raise Exception("style not acceptable: " + self.style);
-        self.cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.alpha);
         self.cr.stroke();
-        # if (self.mask != None):
-        #     self.cr.move_to(0, 0);
-        #     self.cr.set_source_surface(self.mask);
-        #     self.cr.set_operator(cairo.OPERATOR_DEST_IN);
-        #     self.cr.paint();
+
+    def get_width(self):
+        return self.radius * 2;
+    
+    def get_height(self):
+        return self.radius * 2;
 
     def get_surface(self):
         return self.surface;

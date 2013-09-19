@@ -27,12 +27,14 @@ class LinearMeterWidget:
         self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height);
         self.cr      = cairo.Context(self.surface);
 
-    def refresh(self):
+    def prepare_surface(self, ext_cr):
         self.cr.set_operator(cairo.OPERATOR_CLEAR);
         self.cr.paint();
         self.cr.set_operator(cairo.OPERATOR_OVER);
         if (self.mask != None):
             self.cr.mask_surface(self.mask);
+        else:
+            self.cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.alpha);
         value = self.value_monitor.get();
         if (self.gravity == LinearMeterWidget.GRAVITY_SOUTH):
             bar_length = value * self.height;
@@ -48,13 +50,14 @@ class LinearMeterWidget:
             self.cr.rectangle(self.width - bar_length, 0, bar_length, self.height);
         else:
             raise Exception("gravity not acceptable");
-        self.cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.alpha);
         self.cr.fill();
-        # if (self.mask != None):
-        #     self.cr.move_to(0, 0);
-        #     self.cr.set_source_surface(self.mask);
-        #     self.cr.set_operator(cairo.OPERATOR_DEST_IN);
-        #     self.cr.paint();
+
+    def get_width(self):
+        return self.width;
+    
+    def get_height(self):
+        return self.height;
 
     def get_surface(self):
         return self.surface;
+        
