@@ -28,10 +28,10 @@ gmail_icon = cairo.ImageSurface.create_for_data(
 
 def config_monitor(mid, rect):
     from meter import Meter;
-    from linear_meter_widget import LinearMeterWidget;
-    from circle_meter_widget import CircleMeterWidget;
-    from surface_widget import SurfaceWidget;
-    from pango_widget import PangoWidget;
+    from widget.linear_meter import LinearMeterWidget;
+    from widget.circle_meter import CircleMeterWidget;
+    from widget.surface import SurfaceWidget;
+    from widget.pango import PangoWidget;
     from monitor import Monitor;
     from datetime import datetime;
     import math;
